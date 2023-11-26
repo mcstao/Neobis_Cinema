@@ -15,5 +15,6 @@ urlpatterns = [
     path('rows/', RowListCreateView.as_view(), name='rows-list-create'),
     path('seats/', SeatListCreateView.as_view(), name='seats-list-create'),
     path('reserve/', ReserveListCreateView.as_view(), name='reserve-list-create'),
+    path('discount/', DiscountListCreateView.as_view()),
     path('tickets/', TicketListCreateView.as_view(), name='ticket-list-create'),
 ]

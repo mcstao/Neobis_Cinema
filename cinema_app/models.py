@@ -1,3 +1,4 @@
+import decimal
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -8,8 +9,8 @@ class Cinema(models.Model):
     city = models.CharField(max_length=100, verbose_name='Город')
     cinema_name = models.CharField(max_length=100, verbose_name='Кинотеатр')
     cinema_address = models.CharField(max_length=100, verbose_name='Адресс кинотеатра')
-    start_work = models.TimeField(verbose_name='Начало работы', default=timezone.now)
-    end_work = models.TimeField(verbose_name='Конец работы', default=timezone.now)
+    start_work = models.TimeField(verbose_name='Начало работы')
+    end_work = models.TimeField(verbose_name='Конец работы')
 
     def __str__(self):
         return f"{self.cinema_name} - {self.city} - {self.cinema_address}"
@@ -42,7 +43,6 @@ class Seat(models.Model):
         return f'{self.hall.hall_name}-Ряд{self.row.row_number} Место {self.seat_number}'
 
 
-
 class Movie(models.Model):
     movie_name = models.CharField(max_length=250, verbose_name='Название фильма')
     genres = models.CharField(max_length=150)
@@ -50,8 +50,8 @@ class Movie(models.Model):
     duration = models.CharField(max_length=30, verbose_name='Продолжительность')
     poster = models.ImageField(verbose_name='Постер')
     is_active = models.BooleanField(default=True)
-    release_day = models.DateField(verbose_name='День релиза', default=timezone.now)
-    end_day = models.DateField(verbose_name='День окончания проката', default=timezone.now)
+    release_day = models.DateField(verbose_name='День релиза')
+    end_day = models.DateField(verbose_name='День окончания проката')
 
     def __str__(self):
         return self.movie_name
@@ -75,31 +75,40 @@ class Reserve(models.Model):
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
     is_reserved = models.BooleanField(default=False)
 
-    def cancel_time(self):
-        current_time = timezone.now()
-        time_difference = self.session.show_time - current_time
-        return time_difference.total_seconds() <= 1800
+    def __str__(self):
+        return f"{self.session.movie.movie_name}-{self.session.show_time}-{self.room.hall_name}-Ряд {self.row.row_number}, Место {self.seat.seat_number}"
 
-    def cancel_reservation(self):
-        if self.cancel_time():
-            self.is_reserved = False
-            self.save()
+
+class Discount(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    have_discount = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.session.movie.movie_name}-{self.room.hall_name}-Ряд {self.row.row_number}, Место {self.seat.seat_number}"
-
+        return self.user.username
 
 class Ticket(models.Model):
+    PAY_METHODS = (
+        ('card', 'Картой'),
+        ('cash', 'Наличные')
+
+    )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     session = models.ForeignKey(MovieSession, on_delete=models.CASCADE)
-    row = models.ForeignKey(Row, on_delete=models.CASCADE)
-    seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
-    reserve = models.ForeignKey(Reserve, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    seat = models.ManyToManyField(Seat)
+    discount = models.ForeignKey(Discount, on_delete=models.CASCADE)
+    pay_method = models.CharField(max_length=20, choices=PAY_METHODS, verbose_name='Метод оплаты')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     quantity = models.PositiveIntegerField(default=1)
 
+    def save(self, *args, **kwargs):
+        self.total_amount = self.session.price * self.quantity
+        if self.discount.have_discount:
+            self.total_amount *= decimal.Decimal(0.97)
+        super().save(*args, **kwargs)
+
+
     def __str__(self):
-        return f'{self.amount}-{self.quantity}'
+        return f'{self.total_amount}-{self.quantity}'

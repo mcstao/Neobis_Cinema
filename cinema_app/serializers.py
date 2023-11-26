@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cinema, Room, Movie, MovieSession, Reserve, Ticket, Row, Seat
+from .models import Cinema, Room, Movie, MovieSession, Reserve, Ticket, Row, Seat, Discount
 
 
 class CinemaSerializer(serializers.ModelSerializer):
@@ -15,17 +15,12 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class MovieSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Movie
         fields = '__all__'
 
 
 class MovieSessionSerializer(serializers.ModelSerializer):
-    cinema = CinemaSerializer()
-    cinema_hall = RoomSerializer()
-    movie = MovieSerializer()
-
     class Meta:
         model = MovieSession
         fields = '__all__'
@@ -44,22 +39,19 @@ class SeatSerializer(serializers.ModelSerializer):
 
 
 class ReserveSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Reserve
         fields = '__all__'
 
 
-class TicketSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    cinema = CinemaSerializer()
-    room = RoomSerializer()
-    movie = MovieSerializer()
-    session = MovieSessionSerializer()
-    row = RowSerializer()
-    seat = SeatSerializer()
-    reserve = ReserveSerializer()
+class DiscountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discount
+        fields = '__all__'
 
+
+class TicketSerializer(serializers.ModelSerializer):
+    reserve = ReserveSerializer(read_only=True)
 
     class Meta:
         model = Ticket
