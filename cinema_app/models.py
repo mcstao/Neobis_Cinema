@@ -86,6 +86,7 @@ class Discount(models.Model):
     def __str__(self):
         return self.user.username
 
+
 class Ticket(models.Model):
     PAY_METHODS = (
         ('card', 'Картой'),
@@ -109,6 +110,15 @@ class Ticket(models.Model):
             self.total_amount *= decimal.Decimal(0.97)
         super().save(*args, **kwargs)
 
-
     def __str__(self):
         return f'{self.total_amount}-{self.quantity}'
+
+
+class Feedback(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE)
+    comment = models.TextField(max_length=1500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.cinema.cinema_name} - {self.created_at}"

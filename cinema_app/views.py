@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from .models import Cinema, Room, Movie, MovieSession, Reserve, Ticket, Row, Seat, Discount
+from .models import Cinema, Room, Movie, MovieSession, Reserve, Ticket, Row, Seat, Discount, Feedback
 from .serializers import (
     CinemaSerializer,
     RoomSerializer,
@@ -11,7 +11,8 @@ from .serializers import (
     TicketSerializer,
     RowSerializer,
     SeatSerializer,
-    DiscountSerializer
+    DiscountSerializer,
+    FeedbackSerializer
 )
 
 
@@ -104,3 +105,21 @@ class TicketListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         discount, created = Discount.objects.get_or_create(user=user)
         serializer.save(user=user, discount=discount)
+
+
+class FeedbackCreateView(generics.CreateAPIView):
+    queryset = Feedback.objects.all().order_by('-created_at')
+    serializer_class = FeedbackSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user=user)
+
+
+class FeedbackListView(generics.ListAPIView):
+    queryset = Feedback.objects.all().order_by('-created_at')
+    serializer_class = FeedbackSerializer
+    permission_classes = [IsAdminUser]
+
+
