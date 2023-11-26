@@ -16,24 +16,35 @@ class Cinema(models.Model):
 
 class Room(models.Model):
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE)
-    hall_type = models.CharField(max_length=100)
-    hall_name = models.CharField(max_length=255)
+    hall_type = models.CharField(max_length=100, verbose_name='Тип зала')
+    hall_name = models.CharField(max_length=255, verbose_name='Название зала')
 
 
 def __str__(self):
-    return f"{self.cinema} - {self.hall_name}"
+    return f"{self.cinema}-{self.hall_name}-{self.hall_type}"
 
 
-class Genre(models.Model):
-    genre_name = models.CharField(max_length=50, unique=True)
+class Row(models.Model):
+    hall = models.ForeignKey(Room, on_delete=models.CASCADE)
+    row_number = models.PositiveIntegerField(verbose_name='Номер ряда')
 
     def __str__(self):
-        return self.genre_name
+        return f'Ряд {self.row_number}'
+
+
+class Seat(models.Model):
+    hall = models.ForeignKey(Room, on_delete=models.CASCADE)
+    row = models.ForeignKey(Row, on_delete=models.CASCADE)
+    seat_number = models.PositiveIntegerField(verbose_name='Номер места')
+
+    def __str__(self):
+        return f'{self.hall.hall_name}-Ряд{self.row.row_number} Место {self.seat_number}'
+
 
 
 class Movie(models.Model):
     movie_name = models.CharField(max_length=250, verbose_name='Название фильма')
-    genres = models.ManyToManyField(Genre)
+    genres = models.CharField(max_length=150, unique=True)
     description = models.TextField(max_length=2000, verbose_name='Описание')
     duration = models.CharField(max_length=30, verbose_name='Продолжительность')
     poster = models.ImageField(verbose_name='Постер')
@@ -56,16 +67,12 @@ class MovieSession(models.Model):
         return f'{self.movie.movie_name}-{self.show_time}-{self.price}'
 
 
-class Seat(models.Model):
-    room = models.ManyToManyField(Room)
-    session = models.ManyToManyField(MovieSession)
-    rows = models.PositiveIntegerField(verbose_name='Количество рядов')
-    seats_in_row = models.PositiveIntegerField(verbose_name='Количество мест в ряде')
+class Reserve(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    session = models.ForeignKey(MovieSession, on_delete=models.CASCADE)
+    row = models.ForeignKey(Row, on_delete=models.CASCADE)
+    seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
     is_reserved = models.BooleanField(default=False)
-
-    @property
-    def seats_quantity(self) -> int:
-        return self.rows * self.seats_in_row
 
     def cancel_time(self):
         current_time = timezone.now()
@@ -78,7 +85,7 @@ class Seat(models.Model):
             self.save()
 
     def __str__(self):
-        return f"{self.room.cinema} - {self.room.hall_name} - Ряд {self.rows}, Место {self.seats_in_row}"
+        return f"{self.session.movie.movie_name}-{self.room.hall_name}-Ряд {self.row.row_number}, Место {self.seat.seat_number}"
 
 
 class Ticket(models.Model):
@@ -87,7 +94,9 @@ class Ticket(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     session = models.ForeignKey(MovieSession, on_delete=models.CASCADE)
+    row = models.ForeignKey(Row, on_delete=models.CASCADE)
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
+    reserve = models.ForeignKey(Reserve, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 

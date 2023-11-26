@@ -1,46 +1,94 @@
 from rest_framework import generics
-from .models import Cinema, Room, Genre, Movie, MovieSession, Seat, Ticket
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
+
+from .models import Cinema, Room, Movie, MovieSession, Reserve, Ticket, Row, Seat
 from .serializers import (
     CinemaSerializer,
     RoomSerializer,
-    GenreSerializer,
     MovieSerializer,
     MovieSessionSerializer,
-    SeatSerializer,
+    ReserveSerializer,
     TicketSerializer,
+    RowSerializer,
+    SeatSerializer
 )
 
 
-class CinemaListCreateView(generics.ListCreateAPIView):
+class CinemaListView(generics.ListAPIView):
     queryset = Cinema.objects.all()
     serializer_class = CinemaSerializer
+
+
+class CinemaCreateView(generics.CreateAPIView):
+    queryset = Cinema.objects.all()
+    serializer_class = CinemaSerializer
+    permission_classes = [IsAdminUser]
+
+
+class CinemaUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Cinema.objects.all()
+    serializer_class = CinemaSerializer
+    permission_classes = [IsAdminUser]
 
 
 class RoomListCreateView(generics.ListCreateAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
+    permission_classes = [IsAdminUser]
 
 
-class GenreListCreateView(generics.ListCreateAPIView):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
+class MovieCreateView(generics.CreateAPIView):
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    permission_classes = [IsAdminUser]
 
 
-class MovieListCreateView(generics.ListCreateAPIView):
+class MovieListView(generics.ListAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
 
 
-class MovieSessionListCreateView(generics.ListCreateAPIView):
+class MovieUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    permission_classes = [IsAdminUser]
+
+
+class MovieSessionListView(generics.ListAPIView):
     queryset = MovieSession.objects.all()
     serializer_class = MovieSessionSerializer
+
+
+class MovieSessionCreateView(generics.CreateAPIView):
+    queryset = MovieSession.objects.all()
+    serializer_class = MovieSessionSerializer
+    permission_classes = [IsAdminUser]
+
+
+class MovieSessionUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MovieSession.objects.all()
+    serializer_class = MovieSessionSerializer
+
+
+class RowListCreateView(generics.ListCreateAPIView):
+    queryset = Row.objects.all()
+    serializer_class = RowSerializer
+    permission_classes = [IsAdminUser]
 
 
 class SeatListCreateView(generics.ListCreateAPIView):
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
+    permission_classes = [IsAdminUser]
+
+
+class ReserveListCreateView(generics.ListCreateAPIView):
+    queryset = Reserve.objects.all()
+    serializer_class = ReserveSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class TicketListCreateView(generics.ListCreateAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+    permission_classes = [IsAuthenticated]
