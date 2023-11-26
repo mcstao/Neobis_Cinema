@@ -1,3 +1,4 @@
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -7,8 +8,8 @@ class Cinema(models.Model):
     city = models.CharField(max_length=100, verbose_name='Город')
     cinema_name = models.CharField(max_length=100, verbose_name='Кинотеатр')
     cinema_address = models.CharField(max_length=100, verbose_name='Адресс кинотеатра')
-    start_work = models.TimeField(verbose_name='Начало работы')
-    end_work = models.TimeField(verbose_name='Конец работы')
+    start_work = models.TimeField(verbose_name='Начало работы', default=timezone.now)
+    end_work = models.TimeField(verbose_name='Конец работы', default=timezone.now)
 
     def __str__(self):
         return f"{self.cinema_name} - {self.city} - {self.cinema_address}"
@@ -49,15 +50,15 @@ class Movie(models.Model):
     duration = models.CharField(max_length=30, verbose_name='Продолжительность')
     poster = models.ImageField(verbose_name='Постер')
     is_active = models.BooleanField(default=True)
-    release_day = models.DateField(verbose_name='День релиза')
-    end_day = models.DateField(verbose_name='День окончания проката')
+    release_day = models.DateField(verbose_name='День релиза', default=timezone.now)
+    end_day = models.DateField(verbose_name='День окончания проката', default=timezone.now)
 
     def __str__(self):
         return self.movie_name
 
 
 class MovieSession(models.Model):
-    show_time = models.DateTimeField(verbose_name='Время показа')
+    show_time = models.DateTimeField(verbose_name='Время показа', default=timezone.now)
     cinema = models.ForeignKey(Cinema, on_delete=models.CASCADE)
     cinema_hall = models.ForeignKey(Room, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
