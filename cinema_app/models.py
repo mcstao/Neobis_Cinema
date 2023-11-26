@@ -44,7 +44,7 @@ class Seat(models.Model):
 
 class Movie(models.Model):
     movie_name = models.CharField(max_length=250, verbose_name='Название фильма')
-    genres = models.CharField(max_length=150, unique=True)
+    genres = models.CharField(max_length=150)
     description = models.TextField(max_length=2000, verbose_name='Описание')
     duration = models.CharField(max_length=30, verbose_name='Продолжительность')
     poster = models.ImageField(verbose_name='Постер')
