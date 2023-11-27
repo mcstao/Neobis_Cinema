@@ -102,7 +102,7 @@ class Ticket(models.Model):
     discount = models.ForeignKey(Discount, on_delete=models.CASCADE)
     pay_method = models.CharField(max_length=20, choices=PAY_METHODS, verbose_name='Метод оплаты')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    quantity = models.PositiveIntegerField(blank=True, default=1)
+    quantity = models.PositiveIntegerField(default=1)
     buy_time = models.DateTimeField(auto_now=True, verbose_name='Время покупки')
 
     def save(self, *args, **kwargs):
