@@ -87,6 +87,16 @@ class Discount(models.Model):
         return self.user.username
 
 
+class PurchaseHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    purchase_date = models.DateTimeField(auto_now_add=True)
+    movies_info = models.ManyToManyField(MovieSession, related_name='purchase_history', blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.purchase_date}"
+
+
 class Ticket(models.Model):
     PAY_METHODS = (
         ('card', 'Картой'),
@@ -109,6 +119,10 @@ class Ticket(models.Model):
         if self.discount.have_discount:
             self.total_amount *= decimal.Decimal(0.97)
         super().save(*args, **kwargs)
+        purchase_history, created = PurchaseHistory.objects.get_or_create(user=self.user)
+        purchase_history.total_amount += self.total_amount
+        purchase_history.movies_info.add(self.session)
+        purchase_history.save()
 
     def __str__(self):
         return f'{self.total_amount}-{self.quantity}'

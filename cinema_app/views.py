@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from .models import Cinema, Room, Movie, MovieSession, Reserve, Ticket, Row, Seat, Discount, Feedback
+from .models import Cinema, Room, Movie, MovieSession, Reserve, Ticket, Row, Seat, Discount, Feedback, PurchaseHistory
 from .serializers import (
     CinemaSerializer,
     RoomSerializer,
@@ -12,7 +12,8 @@ from .serializers import (
     RowSerializer,
     SeatSerializer,
     DiscountSerializer,
-    FeedbackSerializer
+    FeedbackSerializer,
+    PurchaseHistorySerializer
 )
 
 
@@ -96,7 +97,7 @@ class DiscountListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAdminUser]
 
 
-class TicketListCreateView(generics.ListCreateAPIView):
+class TicketCreateView(generics.CreateAPIView):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [IsAuthenticated]
@@ -105,6 +106,12 @@ class TicketListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         discount, created = Discount.objects.get_or_create(user=user)
         serializer.save(user=user, discount=discount)
+
+
+class TicketListView(generics.ListAPIView):
+    queryset = Ticket.objects.all()
+    serializer_class = TicketSerializer
+    permission_classes = [IsAdminUser]
 
 
 class FeedbackCreateView(generics.CreateAPIView):
@@ -123,3 +130,7 @@ class FeedbackListView(generics.ListAPIView):
     permission_classes = [IsAdminUser]
 
 
+class PurchaseHistoryView(generics.ListAPIView):
+    queryset = PurchaseHistory.objects.all().order_by('-purchase_date')
+    serializer_class = PurchaseHistorySerializer
+    permission_classes = [IsAuthenticated]

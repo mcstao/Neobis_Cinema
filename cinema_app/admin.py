@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from cinema_app.models import Cinema, Room, MovieSession, Movie, Reserve, Ticket, Seat, Row, Discount, Feedback
+from cinema_app.models import (Cinema, Room, MovieSession, Movie, Reserve, Ticket, Seat, Row, Discount, Feedback,
+                               PurchaseHistory)
 
 admin.site.register(Cinema)
 admin.site.register(Room)
@@ -12,3 +13,4 @@ admin.site.register(Reserve)
 admin.site.register(Ticket)
 admin.site.register(Discount)
 admin.site.register(Feedback)
+admin.site.register(PurchaseHistory)
