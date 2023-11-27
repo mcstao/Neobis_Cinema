@@ -131,6 +131,9 @@ class FeedbackListView(generics.ListAPIView):
 
 
 class PurchaseHistoryView(generics.ListAPIView):
-    queryset = PurchaseHistory.objects.all().order_by('-purchase_date')
+    queryset = PurchaseHistory.objects.all().order_by('-id')
     serializer_class = PurchaseHistorySerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return PurchaseHistory.objects.filter(user=self.request.user)

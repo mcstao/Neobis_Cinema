@@ -54,7 +54,7 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ['user', 'cinema', 'room', 'movie', 'session', 'seat', 'pay_method', 'quantity', 'discount',
-                  'total_amount']
+                  'total_amount', 'buy_time']
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
@@ -64,9 +64,9 @@ class FeedbackSerializer(serializers.ModelSerializer):
 
 
 class PurchaseHistorySerializer(serializers.ModelSerializer):
-    movies_info = MovieSessionSerializer(many=True, read_only=True)
-    ticket_info
+    movies_info = TicketSerializer(read_only=True, many=True)
+
     class Meta:
         model = PurchaseHistory
-        fields = '__all__'
+        fields = ['user', 'total_amount', 'movies_info']
 
